@@ -34,14 +34,12 @@ export default function AdminLogin() {
       <form onSubmit={handleSubmit}>
         <label>
           Codice admin
-
           <input
             type="password"
             value={code}
             onChange={(event) =>
               setCode(event.target.value)
             }
-            autoComplete="off"
           />
         </label>
 
@@ -50,9 +48,7 @@ export default function AdminLogin() {
         </button>
       </form>
 
-      {error && (
-        <p>{error}</p>
-      )}
+      {error && <p>{error}</p>}
     </section>
   )
 }

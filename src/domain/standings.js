@@ -1,4 +1,8 @@
-import { getMatchScore, getStandingsPoints } from './tournamentRules'
+import { getWinnerTeamId } from './advancement'
+import {
+  getMatchScore,
+  getStandingsPoints,
+} from './tournamentRules'
 
 export function buildGroupStandings(teamIds, matches) {
   const standings = teamIds.map((teamId) => ({
@@ -6,12 +10,9 @@ export function buildGroupStandings(teamIds, matches) {
     played: 0,
     wins: 0,
     losses: 0,
-
     points: 0,
-
     setsWon: 0,
     setsLost: 0,
-
     pointsScored: 0,
     pointsConceded: 0,
   }))
@@ -86,4 +87,84 @@ function compareStandings(a, b) {
   }
 
   return 0
+}
+
+function getLoserTeamId(match) {
+  const winnerTeamId = getWinnerTeamId(match)
+
+  if (!winnerTeamId) {
+    return null
+  }
+
+  return winnerTeamId === match.teamAId
+    ? match.teamBId
+    : match.teamAId
+}
+
+export function buildFinalStandings(teams, matches) {
+  const final = matches.find(
+    (match) => match.id === 'final',
+  )
+
+  const placement = matches.find(
+    (match) => match.id === 'placement-5-6',
+  )
+
+  const semifinals = matches.filter(
+    (match) => match.phase === 'semifinal',
+  )
+
+  const decisiveMatches = [
+    final,
+    placement,
+    ...semifinals,
+  ]
+
+  // Mostra la classifica finale soltanto quando tutte
+  // le partite decisive sono concluse.
+  if (
+    semifinals.length !== 2 ||
+    decisiveMatches.some(
+      (match) =>
+        !match ||
+        match.status !== 'completed' ||
+        !getWinnerTeamId(match),
+    )
+  ) {
+    return []
+  }
+
+  const semifinalLosers = semifinals.map(
+    getLoserTeamId,
+  )
+
+  // Per il 3° e 4° posto si considerano gironi
+  // e semifinali, applicando gli stessi criteri:
+  // punti, set vinti, meno punti subiti.
+  //
+  // Le statistiche vengono calcolate su tutte le squadre
+  // per includere anche gli incontri contro le finaliste.
+  const thirdAndFourth = buildGroupStandings(
+    teams.map((team) => team.id),
+    matches.filter(
+      (match) =>
+        match.phase === 'group' ||
+        match.phase === 'semifinal',
+    ),
+  ).filter((entry) =>
+    semifinalLosers.includes(entry.teamId),
+  )
+
+  const orderedTeamIds = [
+    getWinnerTeamId(final),
+    getLoserTeamId(final),
+    ...thirdAndFourth.map((entry) => entry.teamId),
+    getWinnerTeamId(placement),
+    getLoserTeamId(placement),
+  ]
+
+  return orderedTeamIds.map((teamId, index) => ({
+    teamId,
+    position: index + 1,
+  }))
 }

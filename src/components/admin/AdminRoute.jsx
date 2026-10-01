@@ -1,7 +1,4 @@
-import {
-    Navigate,
-    Outlet,
-} from 'react-router-dom'
+import { Navigate, Outlet } from 'react-router-dom'
 
 const ADMIN_SESSION_KEY = 'memorial-admin-auth'
 
