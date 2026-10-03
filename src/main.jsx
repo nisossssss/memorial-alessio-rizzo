@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 
 import App from './app/App'
+import { DialogProvider } from './components/ui/DialogProvider'
 import TournamentProvider from './state/TournamentProvider'
 
 import './index.css'
@@ -12,9 +13,11 @@ createRoot(
 ).render(
   <StrictMode>
     <BrowserRouter>
-      <TournamentProvider>
-        <App />
-      </TournamentProvider>
+      <DialogProvider>
+        <TournamentProvider>
+          <App />
+        </TournamentProvider>
+      </DialogProvider>
     </BrowserRouter>
   </StrictMode>,
 )

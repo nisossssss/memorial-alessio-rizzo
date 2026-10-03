@@ -1,0 +1,214 @@
+.site-main p {
+  max-width: 72ch;
+}
+
+.site-main > section > p {
+  color: var(--color-muted);
+}
+
+.site-main article {
+  display: inline-block;
+  width: min(100%, 350px);
+  margin: 0 16px 16px 0;
+  padding: 22px;
+  border: 1px solid rgb(27 23 23 / 11%);
+  border-top: 4px solid var(--color-burgundy);
+  border-radius: 8px;
+  background: rgb(255 255 255 / 62%);
+  box-shadow: 0 12px 32px rgb(27 23 23 / 6%);
+  transition: border-color 180ms ease, box-shadow 180ms ease;
+  vertical-align: top;
+}
+
+.site-main article:hover {
+  border-color: rgb(111 17 16 / 42%);
+  box-shadow: 0 18px 38px rgb(27 23 23 / 12%);
+}
+
+.site-main article h3 {
+  margin-top: 0;
+}
+
+.site-main article p:last-of-type {
+  margin-bottom: 12px;
+}
+
+.site-main ul {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+  gap: 10px;
+  padding: 0;
+  list-style: none;
+}
+
+.site-main ol {
+  padding-left: 24px;
+}
+
+.site-main ul > li {
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid rgb(27 23 23 / 11%);
+  border-radius: 6px;
+  background: rgb(255 255 255 / 60%);
+  transition: border-color 180ms ease, box-shadow 180ms ease;
+}
+
+.site-main ul > li:hover {
+  border-color: rgb(111 17 16 / 42%);
+  box-shadow: 0 10px 24px rgb(27 23 23 / 8%);
+}
+
+.site-main ul > li > a {
+  display: block;
+  padding: 15px 17px;
+  color: var(--color-ink);
+  text-decoration: none;
+}
+
+.site-main ol > li {
+  margin: 6px 0;
+}
+
+.site-main table {
+  display: block;
+  width: 100%;
+  margin: 16px 0 24px;
+  overflow-x: auto;
+  border: 0;
+  border-top: 2px solid var(--color-burgundy);
+  border-collapse: collapse;
+  border-radius: 8px;
+  background: rgb(255 255 255 / 52%);
+  box-shadow: 0 12px 32px rgb(27 23 23 / 6%);
+  white-space: nowrap;
+}
+
+.site-main th,
+.site-main td {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--color-line);
+  text-align: left;
+}
+
+.site-main th {
+  background: rgb(111 17 16 / 8%);
+  color: var(--color-burgundy);
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.site-main tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.site-main tbody tr:nth-child(even) {
+  background: rgb(27 23 23 / 3%);
+}
+
+.site-main form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 14px;
+  max-width: 720px;
+  margin: 20px 0 28px;
+  padding: 22px 0;
+  border-top: 1px solid var(--color-line);
+  border-bottom: 1px solid var(--color-line);
+}
+
+.site-main label {
+  display: grid;
+  flex: 1 1 220px;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.site-main input,
+.site-main select,
+.site-main textarea {
+  width: 100%;
+  min-height: 44px;
+  padding: 9px 11px;
+  border: 1px solid rgb(27 23 23 / 28%);
+  border-radius: 3px;
+  background: var(--color-paper-bright);
+  color: var(--color-ink);
+}
+
+.site-main input:disabled,
+.site-main button:disabled {
+  cursor: not-allowed;
+  opacity: 0.58;
+}
+
+.site-main button {
+  min-height: 44px;
+  padding: 10px 16px;
+  border: 1px solid var(--color-burgundy);
+  border-radius: 4px;
+  background: var(--color-burgundy);
+  color: var(--color-paper-bright);
+  cursor: pointer;
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 700;
+  text-transform: uppercase;
+  transition: background 160ms ease, color 160ms ease, transform 160ms ease;
+}
+
+.site-main button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  border-color: var(--color-accent);
+  background: var(--color-accent);
+  color: var(--color-ink);
+}
+
+.site-main [role="alert"] {
+  padding: 12px 14px;
+  border-left: 4px solid var(--color-burgundy);
+  background: rgb(111 17 16 / 9%);
+  color: var(--color-burgundy);
+  font-weight: 700;
+}
+
+.match-card.is-live {
+  border-top-color: var(--color-accent);
+}
+
+.live-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--color-burgundy);
+}
+
+.live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-burgundy);
+}
+
+@media (max-width: 600px) {
+  .site-main article {
+    display: block;
+    width: 100%;
+    margin-right: 0;
+    margin-bottom: 18px;
+  }
+
+  .site-main form {
+    align-items: stretch;
+    padding: 18px 0;
+  }
+
+  .site-main form button {
+    width: 100%;
+  }
+}

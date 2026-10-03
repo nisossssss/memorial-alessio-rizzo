@@ -1,197 +1,375 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
-import { players } from '../data/players'
-import { drawGroups, drawTeams } from '../domain/draw'
-import {
-    createGroupMatches,
-    createKnockoutMatches,
-} from '../domain/tournament'
+import useDialogs from '../components/ui/useDialogs'
 import { useTournament } from '../state/TournamentContext'
 
 export default function Draw() {
   const navigate = useNavigate()
-  const { tournament, dispatch } = useTournament()
+  const { confirm } = useDialogs()
 
-  const [previewTeams, setPreviewTeams] = useState([])
-  const [previewGroups, setPreviewGroups] = useState([])
+  const {
+    tournament,
+    players,
+    refreshTournament,
+    refreshing,
+  } = useTournament()
 
-  function handleDrawTeams() {
-    const teams = drawTeams(players)
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState('')
+  const [editingId, setEditingId] = useState(null)
+  const [teamName, setTeamName] = useState('')
 
-    setPreviewTeams(teams)
-    setPreviewGroups([])
+  const hasTeams = tournament.teams.length > 0
+  const hasCalendar = tournament.matches.length > 0
+  const disabled = busy || refreshing
 
-    dispatch({
-      type: 'SET_STATUS',
-      payload: 'draw',
+  const canDraw =
+    tournament.status === 'setup' &&
+    !hasTeams &&
+    players.length === 48
+
+  const canCreateCalendar =
+    tournament.status === 'draw' &&
+    tournament.teams.length === 6 &&
+    !hasCalendar &&
+    tournament.groups.length === 0
+
+  const canRename =
+    tournament.status === 'draw' &&
+    !hasCalendar
+
+  async function sendRequest(url, method, body) {
+    const response = await fetch(url, {
+      method,
+      credentials: 'same-origin',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Admin-Request': '1',
+      },
+      body: JSON.stringify(body),
     })
+
+    const contentType =
+      response.headers.get('content-type') ?? ''
+
+    if (!contentType.includes('application/json')) {
+      throw new Error(
+        'API non disponibile. Verifica i file nella cartella api e riavvia vercel dev.',
+      )
+    }
+
+    const result = await response.json()
+
+    if (response.status === 401) {
+      navigate('/admin-login', { replace: true })
+      throw new Error('Sessione scaduta.')
+    }
+
+    if (!response.ok) {
+      throw new Error(
+        result.error ?? 'Operazione non riuscita.',
+      )
+    }
   }
 
-  function handleTeamNameChange(teamId, name) {
-    setPreviewTeams((currentTeams) =>
-      currentTeams.map((team) =>
-        team.id === teamId
-          ? {
-              ...team,
-              name,
-            }
-          : team,
-      ),
-    )
+  async function runOperation(url, method, body) {
+    setBusy(true)
+    setError('')
+
+    try {
+      await sendRequest(url, method, body)
+      refreshTournament()
+      return true
+    } catch (requestError) {
+      setError(
+        requestError instanceof Error
+          ? requestError.message
+          : 'Operazione non riuscita.',
+      )
+      return false
+    } finally {
+      setBusy(false)
+    }
   }
 
-  function handleDrawGroups() {
-    if (previewTeams.length !== 6) {
+  async function handleDraw() {
+    if (!canDraw || disabled) return
+
+    const confirmed = await confirm({
+      eyebrow: 'Sorteggio squadre',
+      title: 'Procedere con il sorteggio?',
+      message: 'Verranno create e salvate 6 squadre. Dopo il salvataggio i partecipanti saranno bloccati.',
+      confirmLabel: 'Sorteggia squadre',
+      tone: 'danger',
+    })
+
+    if (!confirmed) {
       return
     }
 
-    const allTeamsHaveName = previewTeams.every(
-      (team) => team.name.trim().length > 0,
-    )
+    await runOperation('/api/admin-teams', 'POST', {})
+  }
 
-    if (!allTeamsHaveName) {
+  async function handleCalendar() {
+    if (!canCreateCalendar || disabled || editingId) return
+
+    const confirmed = await confirm({
+      eyebrow: 'Calendario',
+      title: 'Generare gironi e partite?',
+      message: 'Saranno creati due gironi e 10 partite. Il torneo passerà alla fase a gironi e i nomi delle squadre saranno bloccati.',
+      confirmLabel: 'Genera calendario',
+      tone: 'danger',
+    })
+
+    if (!confirmed) {
       return
     }
 
-    const result = drawGroups(previewTeams)
-
-    setPreviewTeams(result.teams)
-    setPreviewGroups(result.groups)
+    await runOperation('/api/admin-calendar', 'POST', {})
   }
 
-  function handleConfirmTournament() {
-    if (
-      previewTeams.length !== 6 ||
-      previewGroups.length !== 2
-    ) {
-      return
-    }
+  async function handleReset(action) {
+    if (disabled || editingId) return
 
-    const groupMatches = createGroupMatches(previewGroups)
-    const knockoutMatches = createKnockoutMatches()
-
-    dispatch({
-      type: 'SET_TEAMS',
-      payload: previewTeams,
+    const resetCalendar = action === 'calendar'
+    const confirmed = await confirm({
+      eyebrow: 'Ripristino sorteggio',
+      title: resetCalendar
+        ? 'Rimuovere gironi e calendario?'
+        : 'Annullare tutto il sorteggio?',
+      message: resetCalendar
+        ? 'Saranno eliminati partite, risultati e voti MVP. Squadre, nomi e roster resteranno invariati.'
+        : 'Saranno eliminati gironi, partite, risultati, voti MVP, squadre e assegnazioni. I 48 partecipanti resteranno registrati.',
+      confirmLabel: resetCalendar ? 'Resetta calendario' : 'Resetta tutto',
+      tone: 'danger',
     })
 
-    dispatch({
-      type: 'SET_GROUPS',
-      payload: previewGroups,
-    })
+    if (!confirmed) return
 
-    dispatch({
-      type: 'SET_MATCHES',
-      payload: [
-        ...groupMatches,
-        ...knockoutMatches,
-      ],
-    })
-
-    dispatch({
-      type: 'SET_STATUS',
-      payload: 'group_stage',
-    })
-
-    navigate('/gironi')
+    await runOperation(
+      '/api/admin-reset-draw',
+      'DELETE',
+      { action },
+    )
   }
 
-  const canDrawGroups =
-    previewTeams.length === 6 &&
-    previewTeams.every(
-      (team) => team.name.trim().length > 0,
+  async function handleSaveName(event) {
+    event.preventDefault()
+
+    if (!editingId || !canRename || disabled) return
+
+    const saved = await runOperation(
+      '/api/admin-teams',
+      'PATCH',
+      { id: editingId, name: teamName },
     )
 
-  const canStartTournament =
-    previewTeams.length === 6 &&
-    previewGroups.length === 2
+    if (saved) {
+      setEditingId(null)
+      setTeamName('')
+    }
+  }
+
+  function getTeamName(teamId) {
+    return (
+      tournament.teams.find(
+        (team) => team.id === teamId,
+      )?.name ?? teamId
+    )
+  }
 
   return (
     <section>
-      <h2>Sorteggio</h2>
+      <Link to="/admin">← Amministrazione</Link>
+
+      <h2>Sorteggio squadre e calendario</h2>
 
       <p>
-        Stato torneo: {tournament.status}
+        Stato torneo: <strong>{tournament.status}</strong>
       </p>
 
-      {previewTeams.length === 0 && (
-        <button onClick={handleDrawTeams}>
-          Sorteggia squadre
-        </button>
-      )}
+      <p>
+        Partecipanti: <strong>{players.length} / 48</strong>
+      </p>
 
-      {previewTeams.length > 0 && (
+      {!hasTeams && (
         <>
-          <h3>Squadre sorteggiate</h3>
+          <p>
+            Verranno create 6 squadre da 8 partecipanti.
+            Rimo Filomena e Nuzzo Manuela saranno
+            nella stessa squadra.
+          </p>
 
-          {previewTeams.map((team, index) => (
-            <div key={team.id}>
-              <h4>Squadra {index + 1}</h4>
+          <Link to="/admin/partecipanti">
+            Gestisci partecipanti
+          </Link>
 
-              <input
-                type="text"
-                placeholder="Nome squadra"
-                value={team.name}
-                onChange={(event) =>
-                  handleTeamNameChange(
-                    team.id,
-                    event.target.value,
-                  )
-                }
-              />
-
-              <ul>
-                {team.players.map((player) => (
-                  <li key={player.id}>
-                    {player.name}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-
-          {previewGroups.length === 0 && (
-            <button
-              onClick={handleDrawGroups}
-              disabled={!canDrawGroups}
-            >
-              Sorteggia gironi
-            </button>
+          {players.length !== 48 && (
+            <p>Servono tutti i 48 partecipanti.</p>
           )}
+
+          <p>
+            <button
+              type="button"
+              disabled={!canDraw || disabled}
+              onClick={handleDraw}
+            >
+              Sorteggia squadre
+            </button>
+          </p>
         </>
       )}
 
-      {previewGroups.length > 0 && (
-        <>
-          <h3>Gironi sorteggiati</h3>
+      {error && <p role="alert">{error}</p>}
 
-          {previewGroups.map((group) => (
-            <div key={group.id}>
-              <h4>{group.name}</h4>
+      {hasTeams && (
+        <>
+          <h3>Squadre salvate</h3>
+
+          {tournament.teams.map((team) => (
+            <article key={team.id}>
+              <h4>{team.name}</h4>
+
+              {canRename && (
+                editingId === team.id ? (
+                  <form onSubmit={handleSaveName}>
+                    <label>
+                      Nome squadra
+                      <input
+                        type="text"
+                        required
+                        minLength={2}
+                        maxLength={80}
+                        value={teamName}
+                        disabled={disabled}
+                        onChange={(event) =>
+                          setTeamName(event.target.value)
+                        }
+                      />
+                    </label>
+
+                    <button
+                      type="submit"
+                      disabled={disabled}
+                    >
+                      Salva nome
+                    </button>
+
+                    <button
+                      type="button"
+                      disabled={disabled}
+                      onClick={() => {
+                        setEditingId(null)
+                        setTeamName('')
+                      }}
+                    >
+                      Annulla
+                    </button>
+                  </form>
+                ) : (
+                  <button
+                    type="button"
+                    disabled={disabled}
+                    onClick={() => {
+                      setEditingId(team.id)
+                      setTeamName(team.name)
+                      setError('')
+                    }}
+                  >
+                    Modifica nome squadra
+                  </button>
+                )
+              )}
 
               <ul>
-                {group.teamIds.map((teamId) => {
-                  const team = previewTeams.find(
-                    (item) => item.id === teamId,
+                {[...team.players]
+                  .sort((a, b) =>
+                    a.name.localeCompare(b.name, 'it'),
                   )
-
-                  return (
-                    <li key={teamId}>
-                      {team?.name ?? teamId}
-                    </li>
-                  )
-                })}
+                  .map((player) => (
+                    <li key={player.id}>{player.name}</li>
+                  ))}
               </ul>
-            </div>
+            </article>
           ))}
 
-          <button
-            onClick={handleConfirmTournament}
-            disabled={!canStartTournament}
-          >
-            Avvia torneo
-          </button>
+          {!hasCalendar && (
+            <div>
+              <h3>Calendario</h3>
+
+              <p>
+                Il sorteggio assegna le squadre a due
+                gironi da tre e crea le 10 partite.
+                Prima di procedere salva i nomi delle squadre.
+              </p>
+
+              <button
+                type="button"
+                disabled={
+                  !canCreateCalendar ||
+                  disabled ||
+                  Boolean(editingId)
+                }
+                onClick={handleCalendar}
+              >
+                Sorteggia gironi e calendario
+              </button>
+            </div>
+          )}
+
+          {tournament.groups.map((group) => (
+            <article key={group.id}>
+              <h3>{group.name}</h3>
+
+              <ul>
+                {group.teamIds.map((teamId) => (
+                  <li key={teamId}>
+                    {getTeamName(teamId)}
+                  </li>
+                ))}
+              </ul>
+            </article>
+          ))}
+
+          <section className="draw-reset-panel">
+            <div>
+              <p>Zona di ripristino</p>
+              <h3>Reset sorteggi</h3>
+              <span>
+                Disponibile solo prima dell’inizio delle partite e senza voti MVP.
+              </span>
+            </div>
+            <div className="draw-reset-actions">
+              {hasCalendar && (
+                <button
+                  type="button"
+                  disabled={disabled || Boolean(editingId)}
+                  onClick={() => handleReset('calendar')}
+                >
+                  Resetta gironi e calendario
+                </button>
+              )}
+              <button
+                className="draw-reset-all"
+                type="button"
+                disabled={disabled || Boolean(editingId)}
+                onClick={() => handleReset('teams')}
+              >
+                Resetta tutto il sorteggio
+              </button>
+            </div>
+          </section>
+
+          {hasCalendar && (
+            <p>
+              Calendario salvato: {tournament.matches.length}
+              {' '}partite.{' '}
+              <Link to="/admin/partite">
+                Gestisci partite
+              </Link>
+            </p>
+          )}
         </>
       )}
     </section>

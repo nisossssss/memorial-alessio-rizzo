@@ -1,0 +1,579 @@
+.groups-page,
+.matches-page {
+  display: grid;
+  gap: 20px;
+}
+
+.competition-hero {
+  position: relative;
+  display: flex;
+  min-height: 232px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 34px 42px;
+  overflow: hidden;
+  border-radius: 8px;
+  background: var(--color-burgundy);
+  box-shadow: 0 22px 48px rgb(27 23 23 / 14%);
+  color: var(--color-paper);
+}
+
+.competition-hero::before {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 5px;
+  background: var(--color-accent);
+  content: "";
+}
+
+.competition-hero > div {
+  position: relative;
+  z-index: 1;
+}
+
+.competition-eyebrow {
+  margin: 0 0 7px;
+  color: var(--color-accent);
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.competition-hero h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 68px;
+  font-weight: 700;
+  line-height: 0.94;
+  text-transform: uppercase;
+}
+
+.competition-hero > div > p:last-child {
+  max-width: 48ch;
+  margin: 12px 0 0;
+  color: rgb(237 235 221 / 78%);
+  font-size: 14px;
+}
+
+.competition-hero-mark {
+  position: absolute;
+  right: 30px;
+  bottom: -20px;
+  color: rgb(237 235 221 / 7%);
+  font-family: var(--font-display);
+  font-size: clamp(90px, 17vw, 210px);
+  font-weight: 800;
+  line-height: 0.8;
+  pointer-events: none;
+}
+
+.competition-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  overflow: hidden;
+  border: 1px solid rgb(27 23 23 / 10%);
+  border-radius: 8px;
+  background: var(--color-paper-bright);
+  box-shadow: 0 10px 28px rgb(27 23 23 / 4%);
+}
+
+.competition-metrics > div {
+  display: grid;
+  min-height: 76px;
+  align-content: center;
+  justify-items: center;
+  gap: 2px;
+  border-right: 1px solid var(--color-line);
+}
+
+.competition-metrics > div:last-child {
+  border-right: 0;
+}
+
+.competition-metrics strong {
+  color: var(--color-burgundy);
+  font-family: var(--font-display);
+  font-size: 29px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.competition-metrics span {
+  color: var(--color-muted);
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.competition-empty-state {
+  display: flex;
+  align-items: center;
+  gap: 17px;
+  padding: 24px;
+  border: 1px solid rgb(27 23 23 / 10%);
+  border-radius: 8px;
+  background: var(--color-paper-bright);
+}
+
+.competition-empty-state > span {
+  display: grid;
+  width: 48px;
+  height: 48px;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 5px;
+  background: var(--color-burgundy);
+  color: var(--color-accent);
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.competition-empty-state h3 {
+  margin: 0 0 4px;
+  color: var(--color-burgundy);
+  font-family: var(--font-display);
+  font-size: 24px;
+  text-transform: uppercase;
+}
+
+.competition-empty-state p {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 13px;
+}
+
+.groups-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr));
+  gap: 16px;
+}
+
+.site-main .group-standings-card {
+  display: block;
+  width: auto;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid rgb(27 23 23 / 10%);
+  border-top: 5px solid var(--color-burgundy);
+  border-radius: 8px;
+  background: var(--color-paper-bright);
+  box-shadow: 0 14px 34px rgb(27 23 23 / 7%);
+}
+
+.group-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 21px 22px;
+}
+
+.group-card-header p {
+  margin: 0;
+  color: var(--color-burgundy);
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.site-main .group-card-header h3 {
+  margin: 0;
+  font-size: 33px;
+}
+
+.group-letter {
+  display: grid;
+  width: 56px;
+  height: 56px;
+  place-items: center;
+  border-radius: 6px;
+  background: var(--color-burgundy);
+  color: var(--color-accent);
+  font-family: var(--font-display);
+  font-size: 36px;
+  font-weight: 700;
+}
+
+.group-table-head,
+.group-standings-list li {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr) 58px 48px;
+  align-items: center;
+  gap: 8px;
+  padding: 0 22px;
+}
+
+.group-table-head {
+  min-height: 34px;
+  background: rgb(111 17 16 / 7%);
+  color: var(--color-burgundy);
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.group-table-head span:last-child,
+.group-standings-list li > strong {
+  text-align: right;
+}
+
+.group-standings-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.site-main .group-standings-list li {
+  min-height: 58px;
+  border: 0;
+  border-bottom: 1px solid var(--color-line);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.site-main .group-standings-list li:hover {
+  border-color: var(--color-line);
+  box-shadow: none;
+}
+
+.group-position {
+  color: var(--color-burgundy);
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.site-main .group-standings-list a {
+  overflow: hidden;
+  color: var(--color-ink);
+  font-family: var(--font-display);
+  font-size: 19px;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  text-decoration: none;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.group-record {
+  color: var(--color-muted);
+  font-size: 12px;
+  text-align: center;
+}
+
+.group-points {
+  display: grid;
+  width: 32px;
+  height: 32px;
+  justify-self: end;
+  place-items: center;
+  border-radius: 4px;
+  background: var(--color-accent);
+  color: var(--color-burgundy);
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.group-card-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 13px 22px;
+  color: var(--color-muted);
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.match-schedule {
+  display: grid;
+  gap: 34px;
+}
+
+.match-stage-section {
+  display: grid;
+  gap: 17px;
+}
+
+.stage-heading {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid var(--color-burgundy);
+}
+
+.stage-number {
+  color: var(--color-burgundy);
+  font-family: var(--font-display);
+  font-size: 35px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.stage-heading > div {
+  display: grid;
+  gap: 1px;
+}
+
+.stage-heading p {
+  margin: 0;
+  color: var(--color-muted);
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.site-main .stage-heading h3 {
+  margin: 0;
+  color: var(--color-ink);
+  font-size: 30px;
+}
+
+.stage-count {
+  margin-left: auto;
+  padding: 6px 10px;
+  border-radius: 4px;
+  background: rgb(111 17 16 / 8%);
+  color: var(--color-burgundy);
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.group-fixtures-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 430px), 1fr));
+  gap: 24px;
+}
+
+.group-fixtures-card {
+  min-width: 0;
+  padding-top: 13px;
+  border-top: 1px solid var(--color-line);
+}
+
+.group-fixtures-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.group-fixtures-heading > div > span {
+  color: var(--color-burgundy);
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.site-main .group-fixtures-heading h4 {
+  margin: 1px 0 0;
+  color: var(--color-ink);
+  font-size: 25px;
+}
+
+.group-fixtures-heading > span {
+  color: var(--color-muted);
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.fixtures-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 265px), 1fr));
+  align-items: stretch;
+  gap: 12px;
+}
+
+.fixtures-grid .match-card {
+  display: flex;
+  width: auto;
+  min-width: 0;
+  flex-direction: column;
+  margin: 0;
+  padding: 18px;
+  border: 1px solid rgb(27 23 23 / 10%);
+  border-top: 4px solid var(--color-burgundy);
+  border-radius: 7px;
+  background: var(--color-paper-bright);
+  box-shadow: 0 10px 26px rgb(27 23 23 / 5%);
+}
+
+.fixtures-grid .match-card.is-live {
+  border-top-color: var(--color-accent);
+}
+
+.fixtures-grid .match-card h3 {
+  order: 0;
+  margin: 0 0 12px;
+  color: var(--color-burgundy);
+  font-size: 21px;
+}
+
+.fixtures-grid .match-card p {
+  max-width: none;
+  margin: 7px 0;
+  font-size: 13px;
+}
+
+.fixtures-grid .match-card p:nth-of-type(2) {
+  padding: 10px 0;
+  border-top: 1px solid var(--color-line);
+  border-bottom: 1px solid var(--color-line);
+  font-size: 15px;
+}
+
+.fixtures-grid .match-card p:nth-of-type(2) strong {
+  color: var(--color-ink);
+  font-family: var(--font-display);
+  font-size: 20px;
+  text-transform: uppercase;
+}
+
+.fixtures-grid .match-card ol {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin: 5px 0 10px;
+  padding: 0;
+  list-style: none;
+}
+
+.fixtures-grid .match-card ol li {
+  margin: 0;
+  padding: 5px 8px;
+  border-radius: 3px;
+  background: rgb(111 17 16 / 7%);
+  color: var(--color-muted);
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.fixtures-grid .match-card > a {
+  display: flex;
+  justify-content: space-between;
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 1px solid var(--color-line);
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 700;
+  text-transform: uppercase;
+  text-decoration: none;
+}
+
+.fixtures-empty {
+  margin: 0;
+  padding: 14px 0;
+  color: var(--color-muted);
+  font-size: 13px;
+}
+
+@media (max-width: 700px) {
+  .competition-hero {
+    min-height: 210px;
+    padding: 28px 24px;
+  }
+
+  .competition-hero h2 {
+    font-size: 53px;
+  }
+
+  .competition-hero-mark {
+    right: 12px;
+    bottom: -10px;
+    font-size: 100px;
+  }
+
+  .groups-grid,
+  .group-fixtures-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 520px) {
+  .competition-hero {
+    min-height: 190px;
+    padding: 25px 22px;
+  }
+
+  .competition-hero h2 {
+    font-size: 44px;
+  }
+
+  .competition-metrics > div {
+    min-height: 68px;
+  }
+
+  .competition-metrics strong {
+    font-size: 25px;
+  }
+
+  .competition-metrics span {
+    font-size: 12px;
+  }
+
+  .group-card-header,
+  .group-table-head,
+  .group-standings-list li,
+  .group-card-footer {
+    padding-right: 14px;
+    padding-left: 14px;
+  }
+
+  .group-table-head,
+  .group-standings-list li {
+    grid-template-columns: 34px minmax(0, 1fr) 42px 36px;
+    gap: 5px;
+  }
+
+  .site-main .group-standings-list a {
+    font-size: 16px;
+  }
+
+  .stage-heading {
+    gap: 9px;
+  }
+
+  .stage-number {
+    font-size: 28px;
+  }
+
+  .site-main .stage-heading h3 {
+    font-size: 24px;
+  }
+
+  .stage-count {
+    padding: 5px 7px;
+    font-size: 12px;
+  }
+
+  .competition-empty-state {
+    align-items: start;
+    padding: 18px;
+  }
+}

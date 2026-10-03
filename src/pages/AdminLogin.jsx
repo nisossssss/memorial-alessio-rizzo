@@ -1,30 +1,51 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-const ADMIN_SESSION_KEY = 'memorial-admin-auth'
-
 export default function AdminLogin() {
   const navigate = useNavigate()
 
-  const [code, setCode] = useState('')
+  const [password, setPassword] = useState('')
   const [error, setError] = useState('')
+  const [submitting, setSubmitting] = useState(false)
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault()
 
+    if (submitting) return
+
     setError('')
+    setSubmitting(true)
 
-    if (code !== import.meta.env.VITE_ADMIN_CODE) {
-      setError('Codice non valido.')
-      return
+    try {
+      const response = await fetch('/api/admin-session', {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Admin-Request': '1',
+        },
+        body: JSON.stringify({ password }),
+      })
+
+      const result = await response.json()
+
+      if (!response.ok || !result.authenticated) {
+        throw new Error(
+          result.error ?? 'Accesso non riuscito.',
+        )
+      }
+
+      setPassword('')
+      navigate('/admin', { replace: true })
+    } catch (loginError) {
+      setError(
+        loginError instanceof Error
+          ? loginError.message
+          : 'Impossibile contattare il server.',
+      )
+    } finally {
+      setSubmitting(false)
     }
-
-    sessionStorage.setItem(
-      ADMIN_SESSION_KEY,
-      'authenticated',
-    )
-
-    navigate('/admin')
   }
 
   return (
@@ -33,22 +54,29 @@ export default function AdminLogin() {
 
       <form onSubmit={handleSubmit}>
         <label>
-          Codice admin
+          Password admin
           <input
             type="password"
-            value={code}
+            autoComplete="current-password"
+            required
+            maxLength={1024}
+            value={password}
+            disabled={submitting}
             onChange={(event) =>
-              setCode(event.target.value)
+              setPassword(event.target.value)
             }
           />
         </label>
 
-        <button type="submit">
-          Accedi
+        <button
+          type="submit"
+          disabled={submitting}
+        >
+          {submitting ? 'Accesso in corso…' : 'Accedi'}
         </button>
       </form>
 
-      {error && <p>{error}</p>}
+      {error && <p role="alert">{error}</p>}
     </section>
   )
 }

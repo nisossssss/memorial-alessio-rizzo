@@ -1,0 +1,20 @@
+:root {
+  font-family: "DM Sans", sans-serif;
+  color: #1b1717;
+  background: #edebdd;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  --font-body: "DM Sans", sans-serif;
+  --font-display: "Barlow Condensed", Impact, sans-serif;
+  --color-ink: #1b1717;
+  --color-paper: #edebdd;
+  --color-paper-bright: #f8f6ee;
+  --color-burgundy: #6f1110;
+  --color-burgundy-deep: #4b0b0b;
+  --color-burgundy-light: #921f22;
+  --color-accent: #d8ed69;
+  --color-line: rgb(27 23 23 / 14%);
+  --color-muted: rgb(27 23 23 / 66%);
+  --content-width: 1160px;
+}

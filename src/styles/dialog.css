@@ -1,0 +1,147 @@
+.app-dialog-backdrop {
+  position: fixed;
+  z-index: 2000;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 22px;
+  background: rgb(27 23 23 / 62%);
+  backdrop-filter: blur(5px);
+}
+
+.app-dialog {
+  display: grid;
+  width: min(100%, 470px);
+  grid-template-columns: 48px minmax(0, 1fr);
+  gap: 18px;
+  padding: 26px;
+  border: 1px solid rgb(27 23 23 / 14%);
+  border-top: 5px solid var(--color-burgundy);
+  border-radius: 8px;
+  background: var(--color-paper-bright);
+  box-shadow: 0 30px 90px rgb(0 0 0 / 32%);
+  color: var(--color-ink);
+}
+
+.app-dialog.is-danger {
+  border-top-color: var(--color-burgundy);
+}
+
+.app-dialog-mark {
+  display: grid;
+  width: 46px;
+  height: 46px;
+  place-items: center;
+  border-radius: 5px;
+  background: var(--color-burgundy);
+  color: var(--color-accent);
+  font-family: var(--font-display);
+  font-size: 29px;
+  font-weight: 700;
+}
+
+.app-dialog-copy > p {
+  margin: 0 0 4px;
+  color: var(--color-burgundy);
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.app-dialog-copy h2 {
+  margin: 0;
+  color: var(--color-ink);
+  font-family: var(--font-display);
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.app-dialog-copy > div {
+  margin-top: 10px;
+  color: var(--color-muted);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.app-dialog-actions {
+  display: flex;
+  grid-column: 1 / -1;
+  justify-content: end;
+  gap: 9px;
+  margin-top: 3px;
+}
+
+.app-dialog-actions button {
+  min-height: 42px;
+  padding: 9px 15px;
+  border: 1px solid var(--color-burgundy);
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 700;
+  text-transform: uppercase;
+  transition: background 160ms ease, color 160ms ease, transform 160ms ease;
+}
+
+.app-dialog-actions button:hover {
+  transform: translateY(-1px);
+}
+
+.app-dialog-cancel {
+  background: transparent;
+  color: var(--color-burgundy);
+}
+
+.app-dialog-cancel:hover {
+  background: rgb(111 17 16 / 7%);
+}
+
+.app-dialog-confirm {
+  background: var(--color-burgundy);
+  color: var(--color-paper-bright);
+}
+
+.app-dialog-confirm:hover {
+  border-color: var(--color-accent);
+  background: var(--color-accent);
+  color: var(--color-burgundy);
+}
+
+.app-dialog-confirm.is-danger {
+  border-color: var(--color-burgundy);
+  background: var(--color-burgundy);
+}
+
+@media (max-width: 520px) {
+  .app-dialog-backdrop {
+    align-items: end;
+    padding: 12px;
+  }
+
+  .app-dialog {
+    grid-template-columns: 40px minmax(0, 1fr);
+    gap: 13px;
+    padding: 20px;
+  }
+
+  .app-dialog-mark {
+    width: 40px;
+    height: 40px;
+  }
+
+  .app-dialog-copy h2 {
+    font-size: 26px;
+  }
+
+  .app-dialog-actions {
+    flex-direction: column-reverse;
+  }
+
+  .app-dialog-actions button {
+    width: 100%;
+  }
+}

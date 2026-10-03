@@ -13,13 +13,15 @@ export default function Header() {
   const { tournament } = useTournament()
 
   return (
-    <header>
-      <div>
-        <p>Memorial</p>
+    <header className="masthead">
+      <div className="masthead-inner">
+        <div className="masthead-identity">
+          <p className="masthead-kicker">Memorial</p>
 
-        <h1>Alessio Rizzo</h1>
+          <h1>Alessio Rizzo</h1>
+        </div>
 
-        <span>
+        <span className="status-pill">
           {statusLabels[tournament.status]}
         </span>
       </div>

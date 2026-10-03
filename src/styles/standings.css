@@ -1,0 +1,316 @@
+.standings-page {
+  display: grid;
+  gap: 20px;
+}
+
+.standings-hero {
+  min-height: 220px;
+}
+
+.standings-hero .competition-hero-mark {
+  font-size: clamp(90px, 16vw, 185px);
+}
+
+.final-standings-panel {
+  display: block;
+  width: auto;
+  margin: 0;
+  padding: 24px;
+  border: 0;
+  border-top: 5px solid var(--color-accent);
+  border-radius: 8px;
+  background: var(--color-burgundy);
+  box-shadow: 0 20px 42px rgb(27 23 23 / 13%);
+  color: var(--color-paper);
+}
+
+.final-standings-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  margin-bottom: 18px;
+}
+
+.final-standings-heading p {
+  margin: 0 0 3px;
+  color: var(--color-accent);
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.site-main .final-standings-heading h3 {
+  margin: 0;
+  color: var(--color-paper);
+  font-size: 34px;
+}
+
+.final-standings-heading > span {
+  padding: 6px 10px;
+  border: 1px solid rgb(237 235 221 / 34%);
+  border-radius: 4px;
+  color: rgb(237 235 221 / 78%);
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.final-placements-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 9px;
+}
+
+.final-placement {
+  display: grid;
+  min-height: 104px;
+  align-content: space-between;
+  gap: 5px;
+  padding: 13px;
+  border: 1px solid rgb(237 235 221 / 20%);
+  border-radius: 5px;
+  color: var(--color-paper);
+  text-decoration: none;
+  transition: transform 160ms ease, background 160ms ease;
+}
+
+.final-placement:hover {
+  transform: translateY(-2px);
+  background: rgb(237 235 221 / 9%);
+  color: var(--color-paper);
+}
+
+.final-placement.position-1 {
+  border-color: var(--color-accent);
+  background: var(--color-accent);
+  color: var(--color-burgundy);
+}
+
+.final-placement.position-1:hover {
+  background: #e4f68a;
+  color: var(--color-burgundy);
+}
+
+.placement-number {
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.final-placement > strong {
+  overflow-wrap: anywhere;
+  font-family: var(--font-display);
+  font-size: 19px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.placement-label {
+  color: currentColor;
+  font-size: 10px;
+  opacity: 0.72;
+  text-transform: uppercase;
+}
+
+.final-standings-panel > p {
+  margin: 17px 0 0;
+  color: rgb(237 235 221 / 72%);
+  font-size: 12px;
+}
+
+.standings-groups-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 460px), 1fr));
+  align-items: start;
+  gap: 16px;
+}
+
+.site-main .public-standings-card {
+  display: block;
+  width: auto;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid rgb(27 23 23 / 10%);
+  border-top: 5px solid var(--color-burgundy);
+  border-radius: 8px;
+  background: var(--color-paper-bright);
+  box-shadow: 0 14px 34px rgb(27 23 23 / 7%);
+}
+
+.public-standings-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 19px 22px;
+}
+
+.public-standings-heading p {
+  margin: 0;
+  color: var(--color-burgundy);
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.site-main .public-standings-heading h3 {
+  margin: 0;
+  font-size: 32px;
+}
+
+.public-standings-heading > span {
+  display: grid;
+  width: 50px;
+  height: 50px;
+  place-items: center;
+  border-radius: 5px;
+  background: var(--color-burgundy);
+  color: var(--color-accent);
+  font-family: var(--font-display);
+  font-size: 32px;
+  font-weight: 700;
+}
+
+.standings-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  border-top: 1px solid var(--color-line);
+  scrollbar-color: var(--color-burgundy) transparent;
+  scrollbar-width: thin;
+}
+
+.site-main .public-standings-table {
+  width: 100%;
+  min-width: 100%;
+  margin: 0;
+  overflow: visible;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  table-layout: fixed;
+  font-variant-numeric: tabular-nums;
+}
+
+.site-main .public-standings-table th,
+.site-main .public-standings-table td {
+  padding: 11px 6px;
+  text-align: center;
+  font-size: 12px;
+}
+
+.site-main .public-standings-table th:nth-child(1),
+.site-main .public-standings-table td:nth-child(1) {
+  width: 9%;
+}
+
+.site-main .public-standings-table th:nth-child(2),
+.site-main .public-standings-table td:nth-child(2) {
+  width: 8%;
+}
+
+.site-main .public-standings-table th:nth-child(3),
+.site-main .public-standings-table td:nth-child(3) {
+  width: 28%;
+  text-align: left;
+}
+
+.site-main .public-standings-table td:nth-child(3) a {
+  display: block;
+  overflow: hidden;
+  color: var(--color-ink);
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  text-decoration: none;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.standings-pair-separator {
+  padding: 0 2px;
+  color: var(--color-burgundy);
+  font-size: 10px;
+}
+
+.standings-position {
+  display: inline-grid;
+  width: 29px;
+  height: 29px;
+  place-items: center;
+  border: 1px solid var(--color-line);
+  border-radius: 4px;
+  color: var(--color-muted);
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.standings-position.advances {
+  border-color: var(--color-burgundy);
+  background: var(--color-burgundy);
+  color: var(--color-accent);
+}
+
+.standings-points {
+  display: inline-grid;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  border-radius: 4px;
+  background: var(--color-accent);
+  color: var(--color-burgundy);
+  font-family: var(--font-display);
+  font-size: 17px;
+}
+
+.standings-legend {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 12px;
+}
+
+@media (max-width: 600px) {
+  .final-standings-panel {
+    padding: 18px;
+  }
+
+  .final-placements-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .final-standings-heading {
+    align-items: start;
+    flex-direction: column;
+  }
+
+  .site-main .final-standings-heading h3 {
+    font-size: 29px;
+  }
+
+  .public-standings-heading {
+    padding: 16px;
+  }
+
+  .site-main .public-standings-table {
+    width: max-content;
+    min-width: 620px;
+    table-layout: auto;
+  }
+
+  .site-main .public-standings-table th,
+  .site-main .public-standings-table td {
+    padding: 10px 9px;
+  }
+
+  .site-main .public-standings-table td:nth-child(3) a {
+    max-width: 150px;
+    font-size: 17px;
+  }
+}

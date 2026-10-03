@@ -1,490 +1,271 @@
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import {
     Link,
+    useNavigate,
     useParams,
 } from 'react-router-dom'
 
+import useDialogs from '../../components/ui/useDialogs'
+import { getMatchScore } from '../../domain/tournamentRules'
 import { useTournament } from '../../state/TournamentContext'
-
-import {
-    getMatchWinner,
-    validateMatch,
-    validateSet,
-} from '../../domain/match'
-
-import {
-    getMatchScore,
-} from '../../domain/tournamentRules'
-
-import {
-    buildGroupStandings,
-} from '../../domain/standings'
-
-import {
-    assignFinalists,
-    assignPostGroupStageMatches,
-} from '../../domain/advancement'
 
 export default function AdminMatchDetail() {
   const { id } = useParams()
+  const navigate = useNavigate()
+  const { confirm } = useDialogs()
 
   const {
     tournament,
-    dispatch,
+    refreshTournament,
+    refreshing,
   } = useTournament()
+
+  const [teamAScore, setTeamAScore] = useState('')
+  const [teamBScore, setTeamBScore] = useState('')
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState('')
 
   const match = tournament.matches.find(
     (item) => item.id === id,
   )
 
-  const [teamAScore, setTeamAScore] = useState('')
-  const [teamBScore, setTeamBScore] = useState('')
-  const [message, setMessage] = useState('')
+  const disabled = busy || refreshing
 
-  const teamA = useMemo(
-    () =>
-      tournament.teams.find(
-        (team) => team.id === match?.teamAId,
-      ),
-    [
-      tournament.teams,
-      match?.teamAId,
-    ],
-  )
-
-  const teamB = useMemo(
-    () =>
-      tournament.teams.find(
-        (team) => team.id === match?.teamBId,
-      ),
-    [
-      tournament.teams,
-      match?.teamBId,
-    ],
-  )
-
-  if (!match) {
+  function getTeamName(teamId) {
     return (
-      <section>
-        <h2>Partita non trovata</h2>
-
-        <Link to="/admin/partite">
-          Torna alle partite
-        </Link>
-      </section>
+      tournament.teams.find(
+        (team) => team.id === teamId,
+      )?.name ?? 'Da definire'
     )
   }
 
-  if (!match.teamAId || !match.teamBId) {
-    return (
-      <section>
-        <h2>Partita non ancora definita</h2>
+  async function sendAction(action) {
+    if (!match || disabled) return
 
-        <p>
-          Le squadre saranno determinate automaticamente
-          dall'avanzamento del torneo.
-        </p>
+    if (action === 'reset') {
+      const confirmed = await confirm({
+        eyebrow: 'Gestione partita',
+        title: 'Azzerare il risultato?',
+        message: 'Tutti i set registrati per questa partita verranno rimossi.',
+        confirmLabel: 'Azzera partita',
+        tone: 'danger',
+      })
 
-        <Link to="/admin/partite">
-          Torna alle partite
-        </Link>
-      </section>
-    )
-  }
+      if (!confirmed) return
+    }
 
-  const matchScore = getMatchScore(match.sets)
+    setBusy(true)
+    setError('')
 
-  const isCompleted =
-    match.status === 'completed'
+    try {
+      const response = await fetch('/api/admin-match', {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Admin-Request': '1',
+        },
+        body: JSON.stringify({
+          id: match.id,
+          action,
+          expectedSets: match.sets,
+          ...(action === 'add_set'
+            ? {
+                teamAScore: Number(teamAScore),
+                teamBScore: Number(teamBScore),
+              }
+            : {}),
+        }),
+      })
 
-  function handleStartMatch() {
-    setMessage('')
+      const contentType =
+        response.headers.get('content-type') ?? ''
 
-    dispatch({
-      type: 'UPDATE_MATCH',
-      payload: {
-        id: match.id,
-        status: 'live',
-      },
-    })
-
-    dispatch({
-      type: 'SET_LIVE_MATCH',
-      payload: match.id,
-    })
-  }
-
-  function updateTournamentProgress(updatedMatches) {
-    let nextMatches = updatedMatches
-
-    const groupMatches =
-      nextMatches.filter(
-        (item) => item.phase === 'group',
-      )
-
-    const allGroupMatchesCompleted =
-      groupMatches.length === 6 &&
-      groupMatches.every(
-        (item) => item.status === 'completed',
-      )
-
-    if (allGroupMatchesCompleted) {
-      const groupA =
-        tournament.groups.find(
-          (group) => group.id === 'A',
+      if (!contentType.includes('application/json')) {
+        throw new Error(
+          'API admin-match non disponibile. Verifica il file e riavvia Vercel.',
         )
-
-      const groupB =
-        tournament.groups.find(
-          (group) => group.id === 'B',
-        )
-
-      if (groupA && groupB) {
-        const groupAStandings =
-          buildGroupStandings(
-            groupA.teamIds,
-            groupMatches.filter(
-              (item) => item.groupId === 'A',
-            ),
-          )
-
-        const groupBStandings =
-          buildGroupStandings(
-            groupB.teamIds,
-            groupMatches.filter(
-              (item) => item.groupId === 'B',
-            ),
-          )
-
-        nextMatches =
-          assignPostGroupStageMatches(
-            nextMatches,
-            groupAStandings,
-            groupBStandings,
-          )
-
-        dispatch({
-          type: 'SET_STATUS',
-          payload: 'semifinals',
-        })
       }
+
+      const result = await response.json()
+
+      if (response.status === 401) {
+        navigate('/admin-login', { replace: true })
+        return
+      }
+
+      if (!response.ok) {
+        if (response.status === 409) {
+          refreshTournament()
+        }
+
+        throw new Error(
+          result.error ?? 'Salvataggio non riuscito.',
+        )
+      }
+
+      setTeamAScore('')
+      setTeamBScore('')
+      refreshTournament()
+    } catch (requestError) {
+      setError(
+        requestError instanceof Error
+          ? requestError.message
+          : 'Impossibile contattare il server.',
+      )
+    } finally {
+      setBusy(false)
     }
-
-    const semifinals =
-      nextMatches.filter(
-        (item) => item.phase === 'semifinal',
-      )
-
-    const allSemifinalsCompleted =
-      semifinals.length === 2 &&
-      semifinals.every(
-        (item) => item.status === 'completed',
-      )
-
-    if (allSemifinalsCompleted) {
-      nextMatches =
-        assignFinalists(nextMatches)
-
-      dispatch({
-        type: 'SET_STATUS',
-        payload: 'finals',
-      })
-    }
-
-    const finalMatch =
-      nextMatches.find(
-        (item) => item.phase === 'final',
-      )
-
-    const placementMatch =
-      nextMatches.find(
-        (item) =>
-          item.phase === 'placement_5_6',
-      )
-
-    if (
-      finalMatch?.status === 'completed' &&
-      placementMatch?.status === 'completed'
-    ) {
-      dispatch({
-        type: 'SET_STATUS',
-        payload: 'completed',
-      })
-    }
-
-    dispatch({
-      type: 'SET_MATCHES',
-      payload: nextMatches,
-    })
   }
 
-  function handleAddSet(event) {
-    event.preventDefault()
-
-    setMessage('')
-
-    if (
-      teamAScore === '' ||
-      teamBScore === ''
-    ) {
-      setMessage(
-        'Inserisci entrambi i punteggi.',
-      )
-
-      return
-    }
-
-    const parsedTeamA =
-      Number(teamAScore)
-
-    const parsedTeamB =
-      Number(teamBScore)
-
-    const validation =
-      validateSet(
-        parsedTeamA,
-        parsedTeamB,
-      )
-
-    if (!validation.valid) {
-      setMessage(
-        'Punteggio non valido. Il set si chiude da 15 punti in su con almeno 2 punti di vantaggio.',
-      )
-
-      return
-    }
-
-    if (match.sets.length >= 3) {
-      setMessage(
-        'La partita non può avere più di 3 set.',
-      )
-
-      return
-    }
-
-    const updatedSets = [
-      ...match.sets,
-      {
-        teamAScore: parsedTeamA,
-        teamBScore: parsedTeamB,
-      },
-    ]
-
-    const updatedScore =
-      getMatchScore(updatedSets)
-
-    const matchFinished =
-      updatedScore.teamA === 2 ||
-      updatedScore.teamB === 2
-
-    const updatedMatch = {
-      ...match,
-      sets: updatedSets,
-      status: matchFinished
-        ? 'completed'
-        : 'live',
-    }
-
-    const updatedMatches =
-      tournament.matches.map(
-        (item) =>
-          item.id === match.id
-            ? updatedMatch
-            : item,
-      )
-
-    if (matchFinished) {
-      updateTournamentProgress(
-        updatedMatches,
-      )
-
-      dispatch({
-        type: 'SET_LIVE_MATCH',
-        payload: null,
-      })
-    } else {
-      dispatch({
-        type: 'SET_MATCHES',
-        payload: updatedMatches,
-      })
-    }
-
-    setTeamAScore('')
-    setTeamBScore('')
-  }
-
-  function handleResetMatch() {
-    const resetMatch = {
-      ...match,
-      sets: [],
-      status: 'scheduled',
-    }
-
-    const updatedMatches =
-      tournament.matches.map(
-        (item) =>
-          item.id === match.id
-            ? resetMatch
-            : item,
-      )
-
-    dispatch({
-      type: 'SET_MATCHES',
-      payload: updatedMatches,
-    })
-
-    if (
-      tournament.liveMatchId ===
-      match.id
-    ) {
-      dispatch({
-        type: 'SET_LIVE_MATCH',
-        payload: null,
-      })
-    }
-
-    setTeamAScore('')
-    setTeamBScore('')
-    setMessage('')
-  }
-
-  function handleValidateMatch() {
-    const validation =
-      validateMatch(match.sets)
-
-    if (validation.valid) {
-      setMessage('Risultato valido.')
-      return
-    }
-
-    setMessage(validation.reason)
-  }
-
-  const winner =
-    isCompleted
-      ? getMatchWinner(match.sets)
-      : null
+  const completed = match?.status === 'completed'
+  const ready = Boolean(match?.teamAId && match?.teamBId)
+  const score = getMatchScore(match?.sets ?? [])
 
   return (
     <section>
       <p>
-        <Link to="/admin/partite">
-          ← Gestione partite
-        </Link>
+        <Link to="/admin">← Amministrazione</Link>
+        {' · '}
+        <Link to="/admin/partite">Gestione partite</Link>
       </p>
 
-      <h2>
-        {teamA?.name}
-        {' vs '}
-        {teamB?.name}
-      </h2>
-
-      <p>
-        Stato: <strong>{match.status}</strong>
-      </p>
-
-      <h3>
-        {matchScore.teamA}
-        {' - '}
-        {matchScore.teamB}
-      </h3>
-
-      {winner && (
-        <p>
-          Vincitrice:{' '}
-          <strong>
-            {winner === 'A'
-              ? teamA?.name
-              : teamB?.name}
-          </strong>
-        </p>
-      )}
-
-      <h3>Set</h3>
-
-      {match.sets.length === 0 ? (
-        <p>Nessun set registrato.</p>
+      {!match ? (
+        <h2>Partita non trovata</h2>
       ) : (
-        <ol>
-          {match.sets.map(
-            (set, index) => (
-              <li key={index}>
-                Set {index + 1}:{' '}
-                {set.teamAScore}
-                {' - '}
-                {set.teamBScore}
-              </li>
-            ),
+        <>
+          <h2>
+            {getTeamName(match.teamAId)}
+            {' vs '}
+            {getTeamName(match.teamBId)}
+          </h2>
+
+          <p>
+            Stato: <strong>{match.status}</strong>
+          </p>
+
+          <h3>{score.teamA} - {score.teamB}</h3>
+
+          {!ready && (
+            <p>
+              Le squadre saranno assegnate automaticamente
+              al termine della fase precedente.
+            </p>
           )}
-        </ol>
+
+          <h3>Set registrati</h3>
+
+          {match.sets.length === 0 ? (
+            <p>Nessun set registrato.</p>
+          ) : (
+            <ol>
+              {match.sets.map((set, index) => (
+                <li key={index}>
+                  {set.teamAScore} - {set.teamBScore}
+                </li>
+              ))}
+            </ol>
+          )}
+
+          {completed && (
+            <p>
+              Vincitrice:{' '}
+              <strong>
+                {getTeamName(
+                  score.teamA > score.teamB
+                    ? match.teamAId
+                    : match.teamBId,
+                )}
+              </strong>
+            </p>
+          )}
+
+          {ready && !completed && (
+            <>
+              {match.status === 'scheduled' && (
+                <button
+                  type="button"
+                  disabled={disabled}
+                  onClick={() => sendAction('start')}
+                >
+                  Avvia partita live
+                </button>
+              )}
+
+              {match.status === 'live' && (
+                <form
+                  onSubmit={(event) => {
+                    event.preventDefault()
+                    sendAction('add_set')
+                  }}
+                >
+                  <h3>Salva risultato del set</h3>
+
+                  <label>
+                    {getTeamName(match.teamAId)}
+                    <input
+                      type="number"
+                      min="0"
+                      step="1"
+                      required
+                      disabled={disabled}
+                      value={teamAScore}
+                      onChange={(event) =>
+                        setTeamAScore(event.target.value)
+                      }
+                    />
+                  </label>
+
+                  <label>
+                    {getTeamName(match.teamBId)}
+                    <input
+                      type="number"
+                      min="0"
+                      step="1"
+                      required
+                      disabled={disabled}
+                      value={teamBScore}
+                      onChange={(event) =>
+                        setTeamBScore(event.target.value)
+                      }
+                    />
+                  </label>
+
+                  <button
+                    type="submit"
+                    disabled={disabled}
+                  >
+                    Salva set
+                  </button>
+                </form>
+              )}
+
+              {(match.status === 'live' ||
+                match.sets.length > 0) && (
+                <p>
+                  <button
+                    type="button"
+                    disabled={disabled}
+                    onClick={() => sendAction('reset')}
+                  >
+                    Azzera partita
+                  </button>
+                </p>
+              )}
+            </>
+          )}
+
+          {error && <p role="alert">{error}</p>}
+
+          <button
+            type="button"
+            disabled={disabled}
+            onClick={refreshTournament}
+          >
+            Aggiorna dati
+          </button>
+        </>
       )}
-
-      {match.status === 'scheduled' && (
-        <button onClick={handleStartMatch}>
-          Avvia partita
-        </button>
-      )}
-
-      {!isCompleted &&
-        match.status === 'live' && (
-          <form onSubmit={handleAddSet}>
-            <h3>Risultato set</h3>
-
-            <label>
-              {teamA?.name}
-
-              <input
-                type="number"
-                min="0"
-                value={teamAScore}
-                onChange={(event) =>
-                  setTeamAScore(
-                    event.target.value,
-                  )
-                }
-              />
-            </label>
-
-            <br />
-
-            <label>
-              {teamB?.name}
-
-              <input
-                type="number"
-                min="0"
-                value={teamBScore}
-                onChange={(event) =>
-                  setTeamBScore(
-                    event.target.value,
-                  )
-                }
-              />
-            </label>
-
-            <br />
-
-            <button type="submit">
-              Salva set
-            </button>
-          </form>
-        )}
-
-      {message && (
-        <p>{message}</p>
-      )}
-
-      {isCompleted && (
-        <button onClick={handleValidateMatch}>
-          Verifica risultato
-        </button>
-      )}
-
-      <hr />
-
-      <button onClick={handleResetMatch}>
-        Azzera partita
-      </button>
     </section>
   )
 }

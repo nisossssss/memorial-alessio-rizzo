@@ -1,0 +1,185 @@
+.alessio-carousel {
+  position: relative;
+  display: grid;
+  min-height: 306px;
+  grid-template-columns: minmax(280px, 0.92fr) minmax(0, 1.08fr);
+  margin: 0 0 30px;
+  overflow: hidden;
+  border: 1px solid rgb(27 23 23 / 12%);
+  border-radius: 8px;
+  background: var(--color-burgundy);
+  box-shadow: 0 20px 44px rgb(27 23 23 / 14%);
+  color: var(--color-paper);
+}
+
+.alessio-carousel-image {
+  position: relative;
+  display: grid;
+  min-height: 306px;
+  place-items: center;
+  overflow: hidden;
+  background: var(--color-burgundy-deep);
+  cursor: grab;
+  touch-action: pan-y;
+  user-select: none;
+}
+
+.alessio-carousel-image.is-dragging {
+  cursor: grabbing;
+}
+
+.alessio-carousel-image:focus-visible {
+  outline: 3px solid var(--color-accent);
+  outline-offset: -6px;
+}
+
+.alessio-carousel-image::after {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  border: 12px solid rgb(75 11 11 / 24%);
+  content: "";
+  pointer-events: none;
+}
+
+.alessio-carousel-image img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 44%;
+}
+
+.alessio-carousel-image img[src*="selfie"] {
+  object-position: center 37%;
+}
+
+.alessio-photo-count {
+  position: absolute;
+  z-index: 2;
+  right: 18px;
+  bottom: 18px;
+  padding: 6px 9px;
+  border: 1px solid rgb(237 235 221 / 46%);
+  border-radius: 4px;
+  background: rgb(27 23 23 / 66%);
+  color: var(--color-paper);
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.alessio-photo-count span {
+  color: rgb(237 235 221 / 72%);
+}
+
+.alessio-carousel-copy {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  justify-content: center;
+  padding: 35px clamp(26px, 5vw, 64px) 82px;
+}
+
+.alessio-carousel-copy::before {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 4px;
+  background: var(--color-accent);
+  content: "";
+}
+
+.alessio-carousel-eyebrow {
+  margin: 0 0 12px;
+  color: var(--color-accent);
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.alessio-carousel-copy h2 {
+  max-width: 520px;
+  margin: 0;
+  color: var(--color-paper);
+  font-family: var(--font-display);
+  font-size: clamp(34px, 4.2vw, 58px);
+  font-weight: 700;
+  line-height: 0.96;
+  text-transform: uppercase;
+}
+
+.alessio-carousel-caption {
+  min-height: 24px;
+  margin: 14px 0 22px;
+  color: rgb(237 235 221 / 76%);
+  font-size: 14px;
+}
+
+.alessio-carousel-index {
+  position: absolute;
+  z-index: -1;
+  right: 21px;
+  bottom: 12px;
+  color: rgb(237 235 221 / 10%);
+  font-family: var(--font-display);
+  font-size: 45px;
+  font-weight: 800;
+  pointer-events: none;
+}
+
+@media (max-width: 760px) {
+  .alessio-carousel {
+    grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.18fr);
+  }
+
+  .alessio-carousel-image {
+    min-height: 280px;
+  }
+
+  .alessio-carousel-copy {
+    padding: 25px 24px 78px;
+  }
+
+  .alessio-carousel-copy h2 {
+    font-size: 38px;
+  }
+}
+
+@media (max-width: 560px) {
+  .alessio-carousel {
+    grid-template-columns: 1fr;
+    margin-bottom: 24px;
+  }
+
+  .alessio-carousel-image {
+    min-height: 280px;
+    max-height: 360px;
+  }
+
+  .alessio-carousel-copy {
+    min-height: 230px;
+    padding: 25px 23px 76px;
+  }
+
+  .alessio-carousel-copy h2 {
+    max-width: 360px;
+    font-size: 39px;
+  }
+
+  .alessio-carousel-caption {
+    margin: 10px 0 16px;
+  }
+
+  .alessio-carousel-index {
+    right: 12px;
+    bottom: 8px;
+    font-size: 34px;
+  }
+}

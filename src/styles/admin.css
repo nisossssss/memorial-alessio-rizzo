@@ -1,0 +1,86 @@
+.draw-reset-panel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-top: 26px;
+  padding: 20px 22px;
+  border: 1px solid rgb(111 17 16 / 18%);
+  border-left: 5px solid var(--color-burgundy);
+  border-radius: 6px;
+  background: rgb(111 17 16 / 5%);
+}
+
+.draw-reset-panel > div:first-child > p {
+  margin: 0 0 2px;
+  color: var(--color-burgundy);
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.site-main .draw-reset-panel h3 {
+  margin: 0;
+  color: var(--color-ink);
+  font-size: 25px;
+}
+
+.draw-reset-panel > div:first-child > span {
+  display: block;
+  margin-top: 5px;
+  color: var(--color-muted);
+  font-size: 12px;
+}
+
+.draw-reset-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: end;
+  gap: 9px;
+}
+
+.site-main .draw-reset-actions button {
+  min-height: 40px;
+  padding: 8px 12px;
+  border-color: rgb(111 17 16 / 35%);
+  background: transparent;
+  color: var(--color-burgundy);
+  font-size: 15px;
+}
+
+.site-main .draw-reset-actions .draw-reset-all {
+  border-color: var(--color-burgundy);
+  background: var(--color-burgundy);
+  color: var(--color-paper);
+}
+
+.site-main .draw-reset-actions button:hover:not(:disabled) {
+  border-color: var(--color-accent);
+  background: var(--color-accent);
+  color: var(--color-burgundy);
+}
+
+@media (max-width: 720px) {
+  .draw-reset-panel {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 16px;
+    padding: 17px;
+  }
+
+  .draw-reset-actions {
+    justify-content: stretch;
+  }
+
+  .site-main .draw-reset-actions button {
+    flex: 1 1 190px;
+  }
+}
+
+@media (max-width: 460px) {
+  .site-main .draw-reset-actions button {
+    flex-basis: 100%;
+    width: 100%;
+  }
+}
