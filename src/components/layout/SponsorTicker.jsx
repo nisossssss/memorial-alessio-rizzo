@@ -31,9 +31,6 @@ export default function SponsorTicker() {
       <span className="sponsor-ticker-signature" aria-hidden="true">
         MR <span>2026</span>
       </span>
-      <span className="visually-hidden">
-        Segnaposto per i loghi degli sponsor del Memorial Alessio Rizzo.
-      </span>
     </footer>
   )
 }
